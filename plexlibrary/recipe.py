@@ -206,8 +206,9 @@ class Recipe(object):
                         for folder in library_config['folders']:
                             f = os.path.abspath(folder['containerPath'])
                             if old_path.lower().startswith(f.lower()):
-                                old_path = old_path.replace(folder['containerPath'],folder['hostPath'])
-                                folder_name = os.path.relpath(old_path, os.path.abspath(folder['hostPath']))
+                                # old_path = old_path.replace(folder['containerPath'],folder['hostPath'])
+                                folder_name = os.path.relpath(old_path, os.path.abspath(folder['containerPath']))
+                                print("Relative Path:",folder_name)
                                 break
                         else:
                             continue
