@@ -1,0 +1,32 @@
+# Supported types: movie, tv
+library_type: 'movie'
+
+# Source list(s)
+source_list_urls:
+  - 'https://api.trakt.tv/users/mark-mckessock/lists/plex-mark-movies/items/movies'
+
+# Source library details
+source_libraries:
+  - name: 'Movies'
+    folders:
+      - hostPath: '/tank/media/movies'
+        containerPath: /mnt/tank/movies
+      - hostPath: '/mnt/md0/Media/Movies'
+        containerPath: /mnt/md0/Movie
+
+# New library details
+new_library:
+  name: 'Mark - Movies'
+  folder: '/tank/media/mark-movies'
+  sort: true
+  sort_title:
+    format: '{number}. {title}'
+    visible: true
+    absolute: false  # Skips numbers for missing items
+  # Limit the age (in years) of items to be considered
+  # * 0 for no limit
+  max_age: 0
+  # Maximum number of items to keep in the library
+  max_count: 0
+  # Remove items that no longer exist in the source lists
+  remove_from_library: true

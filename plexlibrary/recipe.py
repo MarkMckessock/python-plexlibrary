@@ -203,10 +203,11 @@ class Recipe(object):
 
                     folder_name = ''
                     for library_config in self.source_library_config:
-                        for f in library_config['folders']:
-                            f = os.path.abspath(f)
+                        for folder in library_config['folders']:
+                            f = os.path.abspath(folder['containerPath'])
                             if old_path.lower().startswith(f.lower()):
-                                folder_name = os.path.relpath(old_path, f)
+                                old_path = old_path.replace(folder['containerPath'],folder['hostPath'])
+                                folder_name = os.path.relpath(old_path, os.path.abspath(folder['hostPath']))
                                 break
                         else:
                             continue
@@ -275,13 +276,14 @@ class Recipe(object):
                         folder_name = ''
                         for library_config in self.source_library_config:
                             for f in library_config['folders']:
-                                if old_path.lower().startswith(f.lower()):
-                                    old_path = os.path.join(f,
+                                if old_path.lower().startswith(f['containerPath'].lower()):
+                                    old_path = old_path.replace(f['containerPath'],f['hostPath'])
+                                    old_path = os.path.join(f['hostPath'],
                                                             old_path.replace(
-                                                                f, '').strip(
+                                                                f['hostPath'], '').strip(
                                                                 os.sep).split(
                                                                 os.sep)[0])
-                                    folder_name = os.path.relpath(old_path, f)
+                                    folder_name = os.path.relpath(old_path, f['hostPath'])
                                     break
                             else:
                                 continue
