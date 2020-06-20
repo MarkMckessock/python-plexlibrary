@@ -183,12 +183,12 @@ class Recipe(object):
               u"library...".format(count=matching_total))
 
         try:
-            if not os.path.exists(self.recipe['new_library']['folder']):
-                os.mkdir(self.recipe['new_library']['folder'])
+            if not os.path.exists(self.recipe['new_library']['folder']['hostPath']):
+                os.mkdir(self.recipe['new_library']['folder']['hostPath'])
         except:
             print(u"Unable to create the new library folder "
                   u"'{folder}'.".format(
-                folder=self.recipe['new_library']['folder']))
+                folder=self.recipe['new_library']['folder']['hostPath']))
             print(u"Exiting script.")
             return 0
 
@@ -214,12 +214,12 @@ class Recipe(object):
 
                         if folder_name == '.':
                             new_path = os.path.join(
-                                self.recipe['new_library']['folder'],
+                                self.recipe['new_library']['folder']['hostPath'],
                                 file_name)
                             dir = False
                         else:
                             new_path = os.path.join(
-                                self.recipe['new_library']['folder'],
+                                self.recipe['new_library']['folder']['hostPath'],
                                 folder_name)
                             dir = True
                             parent_path = os.path.dirname(
@@ -289,7 +289,7 @@ class Recipe(object):
                                 continue
 
                             new_path = os.path.join(
-                                self.recipe['new_library']['folder'],
+                                self.recipe['new_library']['folder']['hostPath'],
                                 folder_name)
 
                             if not os.path.exists(new_path):
@@ -328,7 +328,7 @@ class Recipe(object):
         except plexapi.exceptions.NotFound:
             self.plex.create_new_library(
                 self.recipe['new_library']['name'],
-                self.recipe['new_library']['folder'],
+                self.recipe['new_library']['folder']['containerPath'],
                 self.library_type)
             new_library = self.plex.server.library.section(
                 self.recipe['new_library']['name'])
@@ -445,18 +445,22 @@ class Recipe(object):
                     for part in movie.iterParts():
                         old_path_file = part.file
                         old_path, file_name = os.path.split(old_path_file)
+                        for library_config in self.source_library_config:
+                            for folder in library_config['folders']:
+                                if old_path.lower().startswith(folder['containerPath'].lower()):
+                                    old_path = old_path.replace(folder['containerPath'],folder['hostPath'])
 
                         folder_name = os.path.relpath(
-                            old_path, self.recipe['new_library']['folder'])
+                            old_path, self.recipe['new_library']['folder']['hostPath'])
 
                         if folder_name == '.':
                             new_path = os.path.join(
-                                self.recipe['new_library']['folder'],
+                                self.recipe['new_library']['folder']['hostPath'],
                                 file_name)
                             dir = False
                         else:
                             new_path = os.path.join(
-                                self.recipe['new_library']['folder'],
+                                self.recipe['new_library']['folder']['hostPath'],
                                 folder_name)
                             dir = True
 
@@ -493,10 +497,15 @@ class Recipe(object):
                                 break
                             old_path_file = part.file
                             old_path, file_name = os.path.split(old_path_file)
+                            for library_config in self.source_library_config:
+                                for folder in library_config['folders']:
+                                    if old_path.lower().startswith(folder['containerPath'].lower()):
+                                        old_path = old_path.replace(folder['containerPath'],folder['hostPath'])
+
 
                             folder_name = ''
                             new_library_folder = \
-                                self.recipe['new_library']['folder']
+                                self.recipe['new_library']['folder']['hostPath']
                             old_path = os.path.join(
                                 new_library_folder,
                                 old_path.replace(new_library_folder, '').strip(
@@ -505,7 +514,7 @@ class Recipe(object):
                                                           new_library_folder)
 
                             new_path = os.path.join(
-                                self.recipe['new_library']['folder'],
+                                self.recipe['new_library']['folder']['hostPath'],
                                 folder_name)
                             if os.path.exists(new_path):
                                 try:
