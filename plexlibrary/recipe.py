@@ -206,9 +206,7 @@ class Recipe(object):
                         for folder in library_config['folders']:
                             f = os.path.abspath(folder['containerPath'])
                             if old_path.lower().startswith(f.lower()):
-                                # old_path = old_path.replace(folder['containerPath'],folder['hostPath'])
                                 folder_name = os.path.relpath(old_path, os.path.abspath(folder['containerPath']))
-                                print("Relative Path:",folder_name)
                                 break
                         else:
                             continue
@@ -239,23 +237,17 @@ class Recipe(object):
                                     and not os.listdir(new_path):
                                 os.rmdir(new_path)
 
+                        new_container_path = new_path.replace(self.recipe['new_library']['folder']['hostPath'],self.recipe['new_library']['folder']['containerPath'])
+                        rel_path = '/'.join(os.path.relpath(old_path,new_container_path).split('/')[1:])
+                        rel_path_file = '/'.join(os.path.relpath(old_path_file,new_container_path).split('/')[1:])
+
                         if (dir and not os.path.exists(new_path)) \
                                 or not dir and not os.path.isfile(new_path):
                             try:
-                                if os.name == 'nt':
-                                    if dir:
-                                        subprocess.call(['mklink', '/D',
-                                                         new_path, old_path],
-                                                        shell=True)
-                                    else:
-                                        subprocess.call(['mklink', new_path,
-                                                         old_path_file],
-                                                        shell=True)
+                                if dir:
+                                    os.symlink(rel_path, new_path)
                                 else:
-                                    if dir:
-                                        os.symlink(old_path, new_path)
-                                    else:
-                                        os.symlink(old_path_file, new_path)
+                                    os.symlink(rel_path_file, new_path)
                                 count += 1
                                 new_items.append(movie)
                                 updated_paths.append(new_path)
@@ -278,13 +270,12 @@ class Recipe(object):
                         for library_config in self.source_library_config:
                             for f in library_config['folders']:
                                 if old_path.lower().startswith(f['containerPath'].lower()):
-                                    old_path = old_path.replace(f['containerPath'],f['hostPath'])
-                                    old_path = os.path.join(f['hostPath'],
+                                    old_path = os.path.join(f['containerPath'],
                                                             old_path.replace(
-                                                                f['hostPath'], '').strip(
+                                                                f['containerPath'], '').strip(
                                                                 os.sep).split(
                                                                 os.sep)[0])
-                                    folder_name = os.path.relpath(old_path, f['hostPath'])
+                                    folder_name = os.path.relpath(old_path,f['containerPath'])
                                     break
                             else:
                                 continue
@@ -293,14 +284,12 @@ class Recipe(object):
                                 self.recipe['new_library']['folder']['hostPath'],
                                 folder_name)
 
+                            new_path_container = new_path.replace(self.recipe['new_library']['folder']['hostPath'],self.recipe['new_library']['folder']['containerPath'])
+                            rel_path = '/'.join(os.path.relpath(old_path,new_path_container).split('/')[1:])
+
                             if not os.path.exists(new_path):
                                 try:
-                                    if os.name == 'nt':
-                                        subprocess.call(['mklink', '/D',
-                                                         new_path, old_path],
-                                                        shell=True)
-                                    else:
-                                        os.symlink(old_path, new_path)
+                                    os.symlink(rel_path,new_path)
                                     count += 1
                                     new_items.append(tv_show)
                                     updated_paths.append(new_path)
